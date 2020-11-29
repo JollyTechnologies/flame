@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
+import '../components/mixins/dragable.dart';
 import '../components/mixins/tapable.dart';
 import '../gestures.dart';
 import 'embedded_game_widget.dart';
@@ -20,7 +21,8 @@ bool _hasBasicGestureDetectors(Game game) =>
 bool _hasAdvancedGesturesDetectors(Game game) =>
     game is MultiTouchTapDetector ||
     game is MultiTouchDragDetector ||
-    game is HasTapableComponents;
+    game is HasTapableComponents ||
+    game is HasDragableComponents;
 
 bool _hasMouseDetectors(Game game) =>
     game is MouseMovementDetector || game is ScrollDetector;
@@ -32,10 +34,15 @@ class _GenericTapEventHandler {
   void Function(int pointerId, TapUpDetails details) onTapUp;
 }
 
+class _GenericDragEventHandler {
+  void Function(DragEvent details) onReceiveDrag;
+}
+
 Widget _applyAdvancedGesturesDetectors(Game game, Widget child) {
   final Map<Type, GestureRecognizerFactory> gestures = {};
 
   final List<_GenericTapEventHandler> _tapHandlers = [];
+  final List<_GenericDragEventHandler> _dragHandlers = [];
 
   if (game is HasTapableComponents) {
     _tapHandlers.add(_GenericTapEventHandler()
@@ -49,6 +56,16 @@ Widget _applyAdvancedGesturesDetectors(Game game, Widget child) {
       ..onTapDown = game.onTapDown
       ..onTapUp = game.onTapUp
       ..onTapCancel = game.onTapCancel);
+  }
+
+  if (game is HasDragableComponents) {
+    _dragHandlers
+        .add(_GenericDragEventHandler()..onReceiveDrag = game.onReceiveDrag);
+  }
+
+  if (game is MultiTouchDragDetector) {
+    _dragHandlers
+        .add(_GenericDragEventHandler()..onReceiveDrag = game.onReceiveDrag);
   }
 
   if (_tapHandlers.isNotEmpty) {
@@ -68,19 +85,18 @@ Widget _applyAdvancedGesturesDetectors(Game game, Widget child) {
     );
   }
 
-  if (game is MultiTouchDragDetector) {
+  if (_dragHandlers.isNotEmpty) {
     gestures[ImmediateMultiDragGestureRecognizer] =
         GestureRecognizerFactoryWithHandlers<
             ImmediateMultiDragGestureRecognizer>(
       () => ImmediateMultiDragGestureRecognizer(),
-      (ImmediateMultiDragGestureRecognizer instance) {
+      (MultiDragGestureRecognizer instance) {
         instance
           ..onStart = (Offset o) {
             final drag = DragEvent();
+            // TODO: Remove any padding/margin on the widget here
             drag.initialPosition = o;
-
-            game.onReceiveDrag(drag);
-
+            _dragHandlers.forEach((h) => h.onReceiveDrag(drag));
             return drag;
           };
       },

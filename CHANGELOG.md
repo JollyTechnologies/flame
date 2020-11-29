@@ -7,6 +7,7 @@
  - Update Forge2D docs
  - Update PR template with removal of develop branch
  - Split up Component and PositionComponent to BaseComponent
+ - Dragable mixin for components
 
 ## 1.0.0-rc2
  - Improve IsometricTileMap and Spritesheet classes
