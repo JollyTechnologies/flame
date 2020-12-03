@@ -5,7 +5,7 @@ The Game Loop module is a simple abstraction over the game loop concept. Basical
 * The render method takes the canvas ready for drawing the current state of the game.
 * The update method receives the delta time in seconds since last update and allows you to move to the next state.
 
-The class `Game` can be subclassed and will provide among others, these gameloop methods.
+The class `Game` can be subclassed and will provide, among others, these gameloop methods.
 At the same time, a `Game` subclass instance can be added to a Flutter widget tree via the `GameWidget`.
 
 You can add it into the topo of you tree (directly as an argument to `runApp`) or inside the usual app-like widget structure widget structure (with scaffold, routes and whatnot).
@@ -95,5 +95,4 @@ Here you can see a [working example](/doc/examples/with_widgets_overlay) of this
 Flame's `BaseGame` class provides a method called `debugMode`, which by default returns false. It can however, be overridden to enable debug features over the components of the game. __Be aware__ that the state returned by this method is passed through its component when they added to the game, so if you change the `debugMode` in runtime, it may not affect already added components.
 
 To see more about debugMode on Flame, please refer to the [Debug Docs](/doc/debug.md)
-
 
